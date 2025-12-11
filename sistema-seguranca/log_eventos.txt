@@ -1,6 +1,0 @@
-2025-12-09T23:06:29.166857200 - ALARME ATIVADO via requisição remota.
-2025-12-09T23:07:39.342808100 - NOVO SENSOR ADICIONADO: porta_fundos
-2025-12-09T23:08:01.792149800 - SENSOR REMOVIDO: janela_sala
-2025-12-09T23:08:49.589173300 - ATENÇÃO: Sensor 'porta_fundos' ABERTO enquanto o alarme está ATIVO!
-2025-12-09T23:09:12.983963600 - !!! Sensor 'porta_fundos' violado. ALARME DISPARADO. !!!
-2025-12-09T23:10:51.685689100 - !!! Sensor 'porta_principal' violado. ALARME DISPARADO. !!!

@@ -1,3 +1,0 @@
-alarmeAtivo=true
-porta_fundos,VIOLADO,true
-porta_principal,VIOLADO,true
