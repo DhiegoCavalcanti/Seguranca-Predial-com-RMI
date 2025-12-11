@@ -102,7 +102,7 @@ public class ClientMain {
         boolean status = choice.equals("s");
 
         String resposta = stub.setAlarmStatus(status);
-        System.out.println("\n>> Resposta do Servidor: " + resposta);
+        System.out.println("\n > Resposta do Servidor: " + resposta);
     }
 
     private static void consultSpecificStatus(SecuritySystem stub, Scanner scanner) throws RemoteException {
@@ -110,11 +110,11 @@ public class ClientMain {
         String sensorId = scanner.nextLine().trim();
 
         String status = stub.getSensorStatus(sensorId);
-        System.out.println("\n>> Status do sensor '" + sensorId + "': " + status);
+        System.out.println("\n > Status do sensor '" + sensorId + "': " + status);
     }
 
     private static void consultStatusAll(SecuritySystem stub) throws RemoteException {
-        System.out.println("\n>> Consultando Status de Todos os Sensores:");
+        System.out.println("\n > Consultando Status de Todos os Sensores:");
         Map<String, String> allStatus = stub.getAllSensorStatus();
 
         if (allStatus.isEmpty()) {
@@ -141,7 +141,7 @@ public class ClientMain {
         scanner.nextLine();
 
         List<String> log = stub.getLogEvents(limit);
-        System.out.println("\n>> Últimos " + log.size() + " Eventos do Log (Mais recentes primeiro):");
+        System.out.println("\n > Últimos " + log.size() + " Eventos do Log (Mais recentes primeiro):");
 
         if (log.isEmpty()) {
             System.out.println("   (Log de eventos vazio)");
@@ -157,35 +157,32 @@ public class ClientMain {
         System.out.print("\nInforme o ID do sensor para reset (ex: porta_principal): ");
         String sensorId = scanner.nextLine().trim();
         String resposta = stub.resetSensorAlarm(sensorId);
-        System.out.println("\n>> Resposta do Servidor: " + resposta);
+        System.out.println("\n > Resposta do Servidor: " + resposta);
     }
 
     private static void addSensor(SecuritySystem stub, Scanner scanner) throws RemoteException {
         System.out.print("\nInforme o ID do novo sensor (ex: portao_garagem): ");
         String sensorId = scanner.nextLine().trim();
         String resposta = stub.addSensor(sensorId);
-        System.out.println("\n>> Resposta do Servidor: " + resposta);
+        System.out.println("\n > Resposta do Servidor: " + resposta);
     }
 
     private static void removeSensor(SecuritySystem stub, Scanner scanner) throws RemoteException {
         System.out.print("\nInforme o ID do sensor a ser removido: ");
         String sensorId = scanner.nextLine().trim();
         String resposta = stub.removeSensor(sensorId);
-        System.out.println("\n>> Resposta do Servidor: " + resposta);
+        System.out.println("\n > Resposta do Servidor: " + resposta);
     }
     
-    /**
-     * NOVO MÉTODO: Chama o setSensorStatus remoto para alterar o estado do sensor.
-     */
     private static void changeStatusSensor(SecuritySystem stub, Scanner scanner) throws RemoteException {
         System.out.print("\nInforme o ID do sensor para alterar o status: ");
         String sensorId = scanner.nextLine().trim();
 
-        System.out.print("Abrir (S/s) ou Fechar (N/n)? ");
+        System.out.print("\nAbrir (S/s) ou Fechar (N/n)? ");
         String choice = scanner.nextLine().trim().toLowerCase();
         boolean status = choice.equals("s"); // True se 's', False se 'n'
 
         String resposta = stub.setSensorStatus(sensorId, status);
-        System.out.println("\n>> Resposta do Servidor: " + resposta);
+        System.out.println("\n > Resposta do Servidor: " + resposta);
     }
 }

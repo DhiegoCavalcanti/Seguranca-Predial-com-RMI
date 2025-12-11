@@ -38,8 +38,8 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <!-- <mainClass>br.com.securitysystem.ServerMain</mainClass> -->
-                    <mainClass>br.com.securitysystem.ClientMain</mainClass>
+                    <mainClass>br.com.securitysystem.ServerMain</mainClass>
+                    <!-- <mainClass>br.com.securitysystem.ClientMain</mainClass> -->
                     
                     </configuration>
             </plugin>
