@@ -2,56 +2,33 @@ package br.com.securitysystem;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class ServerMain {
+    
+    private static final int RMI_PORT = 1099;
+    // CRÍTICO: Usando o IP local do usuário para estabilidade RMI
+    private static final String RMI_HOST = "192.168.56.1"; 
+
     public static void main(String[] args) {
-
-        // O Scheduler será responsável por rodar a simulação em background
-        ScheduledExecutorService scheduler = null;
-
         try {
-            // 1. Instancia a implementação remota. 
-            //    (O construtor de SecuritySystemImpl fará a carga dos dados persistidos)
-            SecuritySystemImpl remoteObj = new SecuritySystemImpl();
-
-            // 2. Cria e exporta o Registry na porta padrão (1099)
-            Registry registry = LocateRegistry.createRegistry(1099);
+            // 1. Força o RMI a se ligar neste IP. Sem isso, a conexão falha.
+            System.setProperty("java.rmi.server.hostname", RMI_HOST);
             
-            // 3. Faz o binding do objeto remoto no Registry com o nome de serviço
+            // 2. Cria a implementação do objeto RMI
+            SecuritySystem remoteObj = new SecuritySystemImpl();
+
+            // 3. Inicia o registry RMI na porta padrão
+            Registry registry = LocateRegistry.createRegistry(RMI_PORT);
+
+            // 4. Liga a implementação do objeto RMI ao registry, dando-lhe um nome.
             registry.bind("SecuritySystemService", remoteObj);
 
-            // 4. Configura o Simulador para rodar a cada 5 segundos
-            scheduler = Executors.newSingleThreadScheduledExecutor();
-            scheduler.scheduleAtFixedRate(() -> {
-                try {
-                    // Chama o método de simulação no objeto remoto
-                    remoteObj.checkAndTriggerAlarm();
-                } catch (Exception e) {
-                    // Captura exceções da chamada remota (embora improvável, é boa prática)
-                    System.err.println("\n[SIMULADOR] Erro ao simular evento: " + e.getMessage());
-                }
-            }, 0, 5, TimeUnit.SECONDS);
-
-            System.out.println("\nServidor de Segurança Predial pronto e aguardando requisições na porta 1099.");
-            
-            // Mantém a thread principal do servidor viva
-            // Isso é necessário para evitar que a JVM encerre.
-            while (true) {
-                Thread.sleep(10000); 
-            }
+            System.out.println(">>> Servidor RMI SecuritySystem iniciado em " + RMI_HOST + ":" + RMI_PORT);
+            System.out.println(">>> Serviço 'SecuritySystemService' pronto.");
 
         } catch (Exception e) {
-            System.err.println("\nErro Crítico no Servidor RMI: " + e.toString());
+            System.err.println("Erro Crítico no Servidor RMI: " + e.toString());
             e.printStackTrace();
-        } finally {
-            // Garante que o scheduler de simulação seja desligado se houver um erro
-            if (scheduler != null) {
-                System.out.println("\nDesligando o simulador de sensores...");
-                scheduler.shutdownNow(); 
-            }
         }
     }
 }
