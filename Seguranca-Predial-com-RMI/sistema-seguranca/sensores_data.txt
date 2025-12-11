@@ -1,4 +1,0 @@
-alarmIsActive=false
-55,ABERTO,false
-22,FECHADO,false
-porta_principal,VIOLADO,true
