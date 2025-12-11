@@ -25,22 +25,17 @@ public class SecuritySystemImpl extends UnicastRemoteObject implements SecurityS
 
     private final Random random = new Random();
 
-    // Constantes para Persistência
     private static final String LOG_FILE = "log_eventos.txt";
     private static final String SENSORS_FILE = "sensores_data.txt";
-    // Formato de Persistência: sensorId,status,isLocked
 
     public SecuritySystemImpl() throws RemoteException {
-        // Tenta carregar dados existentes
         loadData();
 
-        // Se a carga falhar ou os dados estiverem vazios, inicializa os mocks
         if (mockSensors.isEmpty()) {
             mockSensors.put("porta_principal", "FECHADO");
             alarmIsLocked.put("porta_principal", false);
             mockSensors.put("janela_sala", "FECHADO");
             alarmIsLocked.put("janela_sala", false);
-            // Salva o estado inicial se não houver dados
             saveSensorState(); 
         }
 
@@ -54,7 +49,7 @@ public class SecuritySystemImpl extends UnicastRemoteObject implements SecurityS
         this.alarmIsActive = status;
         String mensage = status ? "ATIVADO" : "DESATIVADO";
         registerEvent("\nALARME " + mensage + " via requisição remota.");
-        saveSensorState(); // Salva o novo status do alarme
+        saveSensorState();
         return "\nAlarme principal: " + mensage;
     }
 
@@ -66,7 +61,6 @@ public class SecuritySystemImpl extends UnicastRemoteObject implements SecurityS
 
         String newStatus = isOpen ? "ABERTO" : "FECHADO";
 
-        // Se for FECHADO e o alarme estiver trancado, reseta o trancamento
         if (!isOpen && alarmIsLocked.getOrDefault(sensorId, false)) {
             alarmIsLocked.put(sensorId, false);
             registerEvent("\nAlarme trancado do sensor '" + sensorId + "' resetado automaticamente ao FECHAR.");
@@ -74,14 +68,13 @@ public class SecuritySystemImpl extends UnicastRemoteObject implements SecurityS
 
         mockSensors.put(sensorId, newStatus);
 
-        // Simulação de alerta
         if (isOpen && alarmIsActive) {
             registerEvent("\nATENÇÃO: Sensor '" + sensorId + "' ABERTO enquanto o alarme está ATIVO!");
         } else {
             registerEvent("\nSensor '" + sensorId + "' alterado para " + newStatus + ".");
         }
 
-        saveSensorState(); // Salva o novo status do sensor
+        saveSensorState();
         return "\nStatus do sensor '" + sensorId + "' alterado para: " + newStatus;
     }
 
@@ -89,9 +82,9 @@ public class SecuritySystemImpl extends UnicastRemoteObject implements SecurityS
     public String resetSensorAlarm(String sensorId) throws RemoteException {
         if (alarmIsLocked.containsKey(sensorId) && alarmIsLocked.get(sensorId)) {
             alarmIsLocked.put(sensorId, false);
-            mockSensors.put(sensorId, "FECHADO"); // Volta o estado para FECHADO após reset
+            mockSensors.put(sensorId, "FECHADO");
             registerEvent("\nAlarme do sensor '" + sensorId + "' resetado manualmente.");
-            saveSensorState(); // Salva o reset
+            saveSensorState();
             return "\nAlarme do sensor " + sensorId + " resetado com sucesso.";
         }
         return "\nNenhum alarme trancado para o sensor " + sensorId + ".";
@@ -101,7 +94,6 @@ public class SecuritySystemImpl extends UnicastRemoteObject implements SecurityS
 
     @Override
     public String getSensorStatus(String sensorId) throws RemoteException {
-        // Prioridade para ALERTA_TRANCADO
         if (alarmIsActive && alarmIsLocked.getOrDefault(sensorId, false)) {
             return "ALERTA_TRANCADO";
         }
@@ -137,7 +129,7 @@ public class SecuritySystemImpl extends UnicastRemoteObject implements SecurityS
         String logEntry = LocalDateTime.now().toString() + " - " + event;
         this.logEvents.add(0, logEntry);
         System.out.println("\n[LOG DO SERVIDOR] " + logEntry);
-        saveLog(); // Salva o log imediatamente
+        saveLog();
     }
 
     // 3. MÉTODOS DE GERENCIAMENTO (CRUD de Sensores)
@@ -150,7 +142,7 @@ public class SecuritySystemImpl extends UnicastRemoteObject implements SecurityS
         mockSensors.put(sensorId, "FECHADO");
         alarmIsLocked.put(sensorId, false);
         registerEvent("\nNOVO SENSOR ADICIONADO: " + sensorId);
-        saveSensorState(); // Salva o novo sensor
+        saveSensorState();
         return "\nSensor '" + sensorId + "' adicionado com sucesso com status FECHADO.";
     }
 
@@ -162,7 +154,7 @@ public class SecuritySystemImpl extends UnicastRemoteObject implements SecurityS
         mockSensors.remove(sensorId);
         alarmIsLocked.remove(sensorId); 
         registerEvent("\nSENSOR REMOVIDO: " + sensorId);
-        saveSensorState(); // Salva após a remoção
+        saveSensorState();
         return "\nSensor '" + sensorId + "' removido com sucesso.";
     }
 
@@ -182,21 +174,17 @@ public class SecuritySystemImpl extends UnicastRemoteObject implements SecurityS
                 alarmIsLocked.put(sensorId, true); 
 
                 String event = "\n!!! Sensor '" + sensorId + "' violado. ALARME DISPARADO. !!!";
-                registerEvent(event); // registerEvent já chama saveLog()
-                saveSensorState(); // Salva o estado trancado do sensor
+                registerEvent(event);
+                saveSensorState();
             }
         }
     }
     
     // 5. MÉTODOS DE PERSISTÊNCIA
 
-    /**
-     * Carrega dados do estado do alarme, sensores e log de arquivos.
-     */
     private void loadData() {
         System.out.println("\n[PERSISTÊNCIA] Tentando carregar dados de sensores e alarme...");
         
-        // 1. Carregar Dados de Sensores e Alarme
         try (BufferedReader reader = new BufferedReader(new FileReader(SENSORS_FILE))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -220,7 +208,6 @@ public class SecuritySystemImpl extends UnicastRemoteObject implements SecurityS
             System.out.println("\n[PERSISTÊNCIA] Arquivo de dados de sensores não encontrado ou vazio. Usando valores padrão.");
         }
 
-        // 2. Carregar Log de Eventos
         System.out.println("\n[PERSISTÊNCIA] Tentando carregar log de eventos...");
         try (BufferedReader reader = new BufferedReader(new FileReader(LOG_FILE))) {
             String line;
@@ -228,8 +215,6 @@ public class SecuritySystemImpl extends UnicastRemoteObject implements SecurityS
             while ((line = reader.readLine()) != null) {
                 tempLog.add(line);
             }
-            // Inverte a lista lida (que é a ordem do mais antigo para o mais novo)
-            // para que a lista logEvents fique na ordem do mais novo para o mais antigo.
             for (int i = tempLog.size() - 1; i >= 0; i--) {
                 logEvents.add(tempLog.get(i));
             }
@@ -240,21 +225,15 @@ public class SecuritySystemImpl extends UnicastRemoteObject implements SecurityS
         }
     }
     
-    /**
-     * Salva o estado atual do alarme e dos sensores em arquivo.
-     */
     private void saveSensorState() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(SENSORS_FILE))) {
-            // 1. Salva Status do Alarme Central
             writer.write("alarmIsActive=" + this.alarmIsActive);
             writer.newLine();
 
-            // 2. Salva Sensores
             for (Map.Entry<String, String> sensorEntry : mockSensors.entrySet()) {
                 String id = sensorEntry.getKey();
                 String status = sensorEntry.getValue();
                 boolean isLocked = alarmIsLocked.getOrDefault(id, false);
-                // Formato: sensorId,status,isLocked
                 writer.write(String.format("%s,%s,%b", id, status, isLocked));
                 writer.newLine();
             }
@@ -264,13 +243,8 @@ public class SecuritySystemImpl extends UnicastRemoteObject implements SecurityS
         }
     }
     
-    /**
-     * Salva a lista de log em arquivo.
-     */
     private void saveLog() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(LOG_FILE))) {
-            // O logEvents está na ordem do mais recente para o mais antigo.
-            // Escrevemos em ordem inversa (mais antigo primeiro) para facilitar o append em um cenário real.
             for (int i = logEvents.size() - 1; i >= 0; i--) {
                 writer.write(logEvents.get(i));
                 writer.newLine();

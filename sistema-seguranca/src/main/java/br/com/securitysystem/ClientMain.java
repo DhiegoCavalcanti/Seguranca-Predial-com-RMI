@@ -13,7 +13,6 @@ public class ClientMain {
         int port = 1099;
 
         try {
-            // 1. Conexão e lookup do objeto remoto
             Registry registry = LocateRegistry.getRegistry(host, port);
             SecuritySystem stub = (SecuritySystem) registry.lookup("SecuritySystemService");
 
@@ -36,31 +35,31 @@ public class ClientMain {
 
                 try {
                     switch (option) {
-                        case 1: // Ativar/Desativar Alarme
+                        case 1:
                             toggleAlarm(stub, scanner);
                             break;
-                        case 2: // Consultar Status de Sensor Específico
+                        case 2:
                             consultSpecificStatus(stub, scanner);
                             break;
-                        case 3: // Consultar Status de Todos os Sensores
+                        case 3:
                             consultStatusAll(stub);
                             break;
-                        case 4: // Consultar Log de Eventos
+                        case 4:
                             consultLog(stub, scanner);
                             break;
-                        case 5: // Resetar Alarme de Sensor Trancado
+                        case 5:
                             resetAlarmSensor(stub, scanner);
                             break;
-                        case 6: // Adicionar Sensor
+                        case 6:
                             addSensor(stub, scanner);
                             break;
-                        case 7: // Remover Sensor
+                        case 7:
                             removeSensor(stub, scanner);
                             break;
-                        case 8: // NOVO: Mudar Status de Sensor (ABRIR/FECHAR)
+                        case 8:
                             changeStatusSensor(stub, scanner);
                             break;
-                        case 9: // Encerrar
+                        case 9:
                             System.out.println("\nEncerrando aplicação cliente.");
                             isRunning = false;
                             break;
@@ -123,7 +122,6 @@ public class ClientMain {
         }
 
         for (Map.Entry<String, String> entry : allStatus.entrySet()) {
-            // Usa um formato para alinhamento da saída
             System.out.printf("   - %-20s: %s\n", entry.getKey(), entry.getValue());
         }
     }
